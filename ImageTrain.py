@@ -5,7 +5,8 @@ import time
 import tensorflow as tf
 
 import ImageModel
-
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL']='3'
 FLAGS = tf.app.flags.FLAGS
 
 tf.app.flags.DEFINE_string('checkpointDir', './checkpoint/',
@@ -82,7 +83,6 @@ def train():
         config=tf.ConfigProto(
             log_device_placement=FLAGS.log_device_placement)) as mon_sess:
       while not mon_sess.should_stop():
-        print('run step')
         mon_sess.run(train_op)
 
 

@@ -13,7 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
-"""Evaluation for CIFAR-10.
+"""Evaluation for ImageData.
 
 Accuracy:
 ImageModel_train.py achieves 83.0% accuracy after 100K steps (256 epochs
@@ -45,7 +45,7 @@ import ImageModel
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('eval_dir', './eval/',
+tf.app.flags.DEFINE_string('eval_dir', './test/',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
@@ -57,6 +57,7 @@ tf.app.flags.DEFINE_integer('num_examples', 10000,
                             """Number of examples to run.""")
 tf.app.flags.DEFINE_boolean('run_once', False,
                          """Whether to run eval only once.""")
+tf.app.flags.DEFINE_integer('batchSize','16','batchSize')
 
 
 def eval_once(saver, summary_writer, top_k_op, summary_op):
