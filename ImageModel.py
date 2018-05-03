@@ -329,15 +329,15 @@ def train(total_loss, global_step):
 
   # Add histograms for trainable variables.
   # 为可训练变量添加直方图。
-  for var in tf.trainable_variables():
+  '''for var in tf.trainable_variables():
     if var is not None:
-      tf.summary.histogram(var.op.name, var)
+      tf.summary.histogram(var.op.name, var)'''
 
   # Add histograms for gradients.
   # 为梯度添加直方图
-  for grad, var in grads:
+  '''for grad, var in grads:
     if grad is not None:
-      tf.summary.histogram(var.op.name + '/gradients', grad)
+      tf.summary.histogram(var.op.name + '/gradients', grad)'''
 
   # Track the moving averages of all trainable variables.
   # 跟踪所有可训练变量的移动平均值。
