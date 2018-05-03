@@ -23,7 +23,7 @@ tf.app.flags.DEFINE_integer('batchSize','16','batchSize')
 tf.app.flags.DEFINE_integer('numEpochs','10','numEpochs')
 
 FLAGS = tf.app.flags.FLAGS
-NUM_CLASSES = 101
+NUM_CLASSES = 100
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 2724
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 100
 
@@ -51,10 +51,10 @@ class ImageIterator:
 
 	def getLabels(self):
 		labels = []
-		print(self.labelDic)
+		#print(self.labelDic)
 		for i in range (len(self.imageNames)):
 			try:
-				labels.append(self.labelDic[self.imageNames[i]])
+				labels.append(int(self.labelDic[self.imageNames[i]])-1)
 			except KeyError:
 				print(self.imageNames[i])
 		return labels
@@ -100,7 +100,7 @@ def getTrainInputs(dataDir=FLAGS.imageDataDir,batchSize=FLAGS.batchSize,labelFil
 	images = readImage(inputQueue,imageIterator.length,imageIterator.height)
 	#数据增强
 	labels = inputQueue[1]
-	print('labels:',labels)
+	#print('labels:',labels)
 
 	logger.info('开始数据增强')
 
