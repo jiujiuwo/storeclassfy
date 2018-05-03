@@ -17,16 +17,19 @@ ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
 #设置一些全局常量
-tf.app.flags.DEFINE_string('trainImageLabelFile','./train.txt','the train data label file')
+tf.app.flags.DEFINE_string('labelFilePath','./train.txt','the train data label file')
+tf.app.flags.DEFINE_string('imageDataDir','./train/','the train image file')
+tf.app.flags.DEFINE_integer('batchSize','16','batchSize')
+tf.app.flags.DEFINE_integer('numEpochs','10','numEpochs')
+
 FLAGS = tf.app.flags.FLAGS
-IMAGE_SIZE = 1211*891
-NUM_CLASSES = 100
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 500
+NUM_CLASSES = 101
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 2724
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 100
 
 #遍历和获取图片信息的类
 class ImageIterator:
-	def __init__(self,dataDir):
+	def __init__(self,dataDir,labelFilePath):
 		self.imagePaths = []
 		self.imageNames = []
 
@@ -34,13 +37,27 @@ class ImageIterator:
 			for filePath in fileList:
 				self.imagePaths += [os.path.join(root,filePath)]
 				self.imageNames.append(filePath)
+		self.labelDic = self.loadLablesDic(labelFilePath)
+		self.labels = self.getLabels()
+		self.length,self.height = self.maxLenthHeight()
 
-	def loadLables(self,filePath):
-		self.labelTable = pd.read_table('train.txt',delim_whitespace=True,header=None)
+	def loadLablesDic(self,labelFilePath):
+		self.labelTable = pd.read_table(labelFilePath,delim_whitespace=True,header=None)
 		labelDic ={}
 		for index,row in self.labelTable.iterrows():
 			labelDic[row[0]] = row[1]
+		self.labelDic = labelDic
 		return labelDic
+
+	def getLabels(self):
+		labels = []
+		print(self.labelDic)
+		for i in range (len(self.imageNames)):
+			try:
+				labels.append(self.labelDic[self.imageNames[i]])
+			except KeyError:
+				print(self.imageNames[i])
+		return labels
 
 	def maxLenthHeight(self):
 		maxLen = 0
@@ -55,50 +72,57 @@ class ImageIterator:
 
 
 #使用numpy读取一张图片
-def readImage(imagePathsQueue):
-	print(imagePathsQueue)
-	if imagePathsQueue != None:
-		return np.array(Image.open(imagePathsQueue))
+def readImage(inputQueue,length,height):
+	print(inputQueue)
+	size = int(max(length,height) / 3)
+	if inputQueue != None:
+		images = tf.read_file(inputQueue[0])
+		images = tf.image.convert_image_dtype(tf.image.decode_png(images, channels=3), tf.int64)
+		resized = tf.image.resize_images(images,[size,size],method=0)
+		resized.set_shape([size,size,3])
+		return resized
 	else:
-		logger.info('文件%s不存在'.format(imagePathsQueue))
+		logger.info('文件%s不存在'.format(inputQueue))
 		return None
 
 
-def getTrainInputs(dataDir,batchSize):
-	imageIterator = ImageIterator(dataDir)
+def getTrainInputs(dataDir=FLAGS.imageDataDir,batchSize=FLAGS.batchSize,labelFilePath = FLAGS.labelFilePath):
+	imageIterator = ImageIterator(dataDir,labelFilePath)
 	imagePaths = imageIterator.imagePaths
-	imageNames = imageIterator.imageNames
 
-	imageLabelsDic = imageIterator.loadLables(FLAGS.trainImageLabelFile)
+	imagesTensor = tf.convert_to_tensor(imagePaths,dtype=tf.string)
+	labelsTensor = tf.convert_to_tensor(imageIterator.labels,dtype=tf.int64)
 
-	imagePathsQueue = tf.train.string_input_producer(imagePaths)
+	print(labelsTensor.shape)
 
-	logger.info('图像数据读取完成')
+	inputQueue = tf.train.slice_input_producer([imagesTensor,labelsTensor],num_epochs=FLAGS.numEpochs)
+
+	images = readImage(inputQueue,imageIterator.length,imageIterator.height)
 	#数据增强
+	labels = inputQueue[1]
+	print('labels:',labels)
+
 	logger.info('开始数据增强')
 
 	with tf.name_scope('data_augmentation'):
-		logger.info(imagePathsQueue)
-
-		imageInput = readImage(imagePathsQueue)
-		labelInput = imageLabelsDic[imagePathsQueue]
-		convertImage = tf.cast(tf.convert_to_tensor(imageInput),tf.float32)
-		convertLabel = tf.cast(tf.convert_to_tensor(labelInput),tf.int32)
+		logger.info(inputQueue)
 
 		width,height = imageIterator.maxLenthHeight()
 
-		minFractionOfExampleInQueue = 0.4
+		minFractionOfExampleInQueue = 0.01
 		minQueueExamples = int(2725*minFractionOfExampleInQueue)
 		#发现
-	return generateImageAndLabelBatch(convertImage,convertLabel,minQueueExamples,batchSize)
+		print ('Filling queue with %d images before starting to train. '
+			'This will take a few minutes.' % minQueueExamples)
+	return generateImageAndLabelBatch(images,labels,minQueueExamples,batchSize,shuffle=False)
 
 def generateImageAndLabelBatch(image,label,minQueueExamples,batchSize,shuffle):
-	numPreprocessThreads = 16
+	numPreprocessThreads = 4
 	if shuffle:
 		images,labelBatch = tf.train.shuffle_batch([image,label],batchSize = batchSize,num_threads=numPreprocessThreads,
-			capaity = minQueueExamples + 3* batchSize,min_after_dequeue = minQueueExamples)
+			capacity = minQueueExamples + 3* batchSize,min_after_dequeue = minQueueExamples)
 	else:
-		images,labelBatch = tf.train.batch([image,label],batchSize = batchSize,num_threads=numPreprocessThreads,
-			capaity = minQueueExamples + 3* batchSize,min_after_dequeue = minQueueExamples)
+		images,labelBatch = tf.train.batch([image,label],batch_size = batchSize,num_threads=numPreprocessThreads,
+			capacity = minQueueExamples + 3* batchSize)
 	tf.summary.image('images',images)
 	return images,tf.reshape(labelBatch,[batchSize])

@@ -10,13 +10,12 @@ import ImageInputHelper
 FLAGS = tf.app.flags.FLAGS
 
 # Basic model parameters.
-tf.app.flags.DEFINE_integer('batch_size', 128,
+tf.app.flags.DEFINE_integer('batch_size', '16',
                             """Number of images to process in a batch.""")
 tf.app.flags.DEFINE_string('data_dir', './train/',
                            """Path to the image directory.""")
 
 # Global constants describing the CIFAR-10 data set.
-IMAGE_SIZE = ImageInputHelper.IMAGE_SIZE
 NUM_CLASSES = ImageInputHelper.NUM_CLASSES
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = ImageInputHelper.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = ImageInputHelper.NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
@@ -304,6 +303,7 @@ def train(total_loss, global_step):
   """
   # Variables that affect learning rate.
   num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
+  print('num_batches_per_epoch%s'%num_batches_per_epoch)
   decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
 
   # Decay the learning rate exponentially based on the number of steps.
@@ -330,7 +330,8 @@ def train(total_loss, global_step):
   # Add histograms for trainable variables.
   # 为可训练变量添加直方图。
   for var in tf.trainable_variables():
-    tf.summary.histogram(var.op.name, var)
+    if var is not None:
+      tf.summary.histogram(var.op.name, var)
 
   # Add histograms for gradients.
   # 为梯度添加直方图

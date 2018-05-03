@@ -1,3 +1,4 @@
+#-*-encoding = utf-8 -*-
 from datetime import datetime
 import time
 
@@ -7,7 +8,7 @@ import ImageModel
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('imageDir', './train/',
+tf.app.flags.DEFINE_string('checkpointDir', './checkpoint/',
                            """Directory where to write event logs """
                            """and checkpoint.""")
 tf.app.flags.DEFINE_integer('max_steps', 100000,
@@ -29,6 +30,7 @@ def train():
     # 获取CIFAR-10的图像和标签。 强制输入管道到CPU：0以避免有时会在GPU上结束并导致减速的操作。
     with tf.device('/cpu:0'):
       images, labels = ImageModel.distorted_inputs()
+      print('distorted_inputs')
 
     # Build a Graph that computes the logits predictions from the
     # inference model.
@@ -43,6 +45,8 @@ def train():
     # updates the model parameters.
     # 构建一个graph，通过一批示例来训练模型并更新模型参数。
     train_op = ImageModel.train(loss, global_step)
+
+    print('计算图创建成功')
 
     class _LoggerHook(tf.train.SessionRunHook):
       """Logs loss and runtime."""
@@ -71,13 +75,14 @@ def train():
                                examples_per_sec, sec_per_batch))
 
     with tf.train.MonitoredTrainingSession(
-        checkpoint_dir=FLAGS.train_dir,
+        checkpoint_dir=FLAGS.checkpointDir,
         hooks=[tf.train.StopAtStepHook(last_step=FLAGS.max_steps),
                tf.train.NanTensorHook(loss),
                _LoggerHook()],
         config=tf.ConfigProto(
             log_device_placement=FLAGS.log_device_placement)) as mon_sess:
       while not mon_sess.should_stop():
+        print('run step')
         mon_sess.run(train_op)
 
 
