@@ -42,22 +42,21 @@ import numpy as np
 import tensorflow as tf
 
 import ImageModel
+import ImageInputHelper
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('eval_dir', './test/',
+tf.app.flags.DEFINE_string('testDataDir', './test/',
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', './checkpoints/',
+tf.app.flags.DEFINE_string('checkpoint_dir', './checkpoint/',
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('eval_interval_secs', 60 * 5,
                             """How often to run the eval.""")
-tf.app.flags.DEFINE_integer('num_examples', 10000,
-                            """Number of examples to run.""")
+
 tf.app.flags.DEFINE_boolean('run_once', False,
                          """Whether to run eval only once.""")
-tf.app.flags.DEFINE_integer('batchSize','16','batchSize')
 
 
 def eval_once(saver, summary_writer, top_k_op, summary_op):
@@ -90,7 +89,7 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
         threads.extend(qr.create_threads(sess, coord=coord, daemon=True,
                                          start=True))
 
-      num_iter = int(math.ceil(FLAGS.num_examples / FLAGS.batch_size))
+      num_iter = int(math.ceil(ImageInputHelper.NUM_EXAMPLES_PER_EPOCH_FOR_EVAL / FLAGS.batch_size))
       true_count = 0  # Counts the number of correct predictions.
       total_sample_count = num_iter * FLAGS.batch_size
       step = 0
@@ -118,8 +117,7 @@ def evaluate():
   """Eval CIFAR-10 for a number of steps."""
   with tf.Graph().as_default() as g:
     # Get images and labels for CIFAR-10.
-    eval_data = FLAGS.eval_data == 'test'
-    images, labels = ImageModel.inputs(eval_data=eval_data)
+    images, labels = ImageModel.getTestInputs()
 
     # Build a Graph that computes the logits predictions from the
     # inference model.
@@ -137,7 +135,7 @@ def evaluate():
     # Build the summary operation based on the TF collection of Summaries.
     summary_op = tf.summary.merge_all()
 
-    summary_writer = tf.summary.FileWriter(FLAGS.eval_dir, g)
+    summary_writer = tf.summary.FileWriter(FLAGS.checkpoint_dir, g)
 
     while True:
       eval_once(saver, summary_writer, top_k_op, summary_op)

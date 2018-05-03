@@ -1,3 +1,4 @@
+#-*-encoding = utf-8 -*-
 import tensorflow as tf
 import os
 import random
@@ -19,8 +20,14 @@ logger.addHandler(ch)
 #设置一些全局常量
 tf.app.flags.DEFINE_string('labelFilePath','./train.txt','the train data label file')
 tf.app.flags.DEFINE_string('imageDataDir','./train/','the train image file')
+
+
+
+tf.app.flags.DEFINE_string('testLabelFilePath','./test.txt','the train data label file')
+tf.app.flags.DEFINE_string('testImageDataDir','./test/','the train image file')
+
 tf.app.flags.DEFINE_integer('batchSize','16','batchSize')
-tf.app.flags.DEFINE_integer('numEpochs','10','numEpochs')
+tf.app.flags.DEFINE_integer('numEpochs','100','numEpochs')
 
 FLAGS = tf.app.flags.FLAGS
 NUM_CLASSES = 100
@@ -90,10 +97,12 @@ def getTrainInputs(dataDir=FLAGS.imageDataDir,batchSize=FLAGS.batchSize,labelFil
 	imageIterator = ImageIterator(dataDir,labelFilePath)
 	imagePaths = imageIterator.imagePaths
 
+	NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = len(imagePaths)
+
 	imagesTensor = tf.convert_to_tensor(imagePaths,dtype=tf.string)
 	labelsTensor = tf.convert_to_tensor(imageIterator.labels,dtype=tf.int64)
 
-	print(labelsTensor.shape)
+	print('labelTensorShape',labelsTensor.shape)
 
 	inputQueue = tf.train.slice_input_producer([imagesTensor,labelsTensor],num_epochs=FLAGS.numEpochs)
 
@@ -109,8 +118,8 @@ def getTrainInputs(dataDir=FLAGS.imageDataDir,batchSize=FLAGS.batchSize,labelFil
 
 		width,height = imageIterator.maxLenthHeight()
 
-		minFractionOfExampleInQueue = 0.01
-		minQueueExamples = int(2725*minFractionOfExampleInQueue)
+		minFractionOfExampleInQueue = 0.1
+		minQueueExamples = int(NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN*minFractionOfExampleInQueue)
 		#发现
 		print ('Filling queue with %d images before starting to train. '
 			'This will take a few minutes.' % minQueueExamples)
@@ -126,3 +135,31 @@ def generateImageAndLabelBatch(image,label,minQueueExamples,batchSize,shuffle):
 			capacity = minQueueExamples + 3* batchSize)
 	tf.summary.image('images',images)
 	return images,tf.reshape(labelBatch,[batchSize])
+
+def getTestInputs(dataDir=FLAGS.testImageDataDir,batchSize=FLAGS.batchSize,labelFilePath = FLAGS.labelFilePath):
+	imageIterator = ImageIterator(dataDir,labelFilePath)
+	imagePaths = imageIterator.imagePaths
+
+	imagesTensor = tf.convert_to_tensor(imagePaths,dtype=tf.string)
+	labelsTensor = tf.convert_to_tensor(imageIterator.labels,dtype=tf.int64)
+
+	NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = len(imagePaths)
+
+	inputQueue = tf.train.slice_input_producer([imagesTensor,labelsTensor],num_epochs=1)
+
+	images = readImage(inputQueue,imageIterator.length,imageIterator.height)
+	#数据增强
+	labels = inputQueue[1]
+	#print('labels:',labels)
+
+	with tf.name_scope('data_augmentation'):
+		logger.info(inputQueue)
+
+		width,height = imageIterator.maxLenthHeight()
+
+		minFractionOfExampleInQueue = 0.1
+		minQueueExamples = int(NUM_EXAMPLES_PER_EPOCH_FOR_EVAL*minFractionOfExampleInQueue)
+		#发现
+		print ('Filling queue with %d images before starting to train. '
+			'This will take a few minutes.' % minQueueExamples)
+	return generateImageAndLabelBatch(images,labels,minQueueExamples,batchSize,shuffle=False)

@@ -116,27 +116,11 @@ def distorted_inputs():
                                                   batchSize=FLAGS.batch_size)
   return images, labels
 
+def getTestInputs():
 
-def inputs(eval_data):
-  """Construct input for CIFAR evaluation using the Reader ops.
-    使用Reader ops构建CIFAR10训练的输入，用于训练或eval
-
-  Args:
-    eval_data: bool, indicating if one should use the train or eval data set.
-
-  Returns:
-    images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
-    labels: Labels. 1D tensor of [batch_size] size.
-
-  Raises:
-    ValueError: If no data_dir
-  """
   if not FLAGS.data_dir:
     raise ValueError('Please supply a data_dir')
-
-  images, labels = ImageInputHelper.inputs(eval_data=eval_data,
-                                        data_dir=data_dir,
-                                        batch_size=FLAGS.batch_size)
+  images, labels = ImageInputHelper.getTestInputs(dataDir=FLAGS.data_dir)
   return images, labels
 
 # 构建模型，输入是distorted_inputs()或者inputs()的返回值
