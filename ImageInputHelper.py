@@ -87,6 +87,7 @@ def readImage(inputQueue,length,height):
 	size = int(max(length,height) / 3)
 	if inputQueue != None:
 		images = tf.read_file(inputQueue[0])
+		plt.show(inputQueue[0])
 		images = tf.image.convert_image_dtype(tf.image.decode_png(images, channels=3), tf.int64)
 		resized = tf.image.resize_images(images,[size,size],method=0)
 		resized.set_shape([size,size,3])

@@ -132,7 +132,7 @@ def evaluate():
     variable_averages = tf.train.ExponentialMovingAverage(
         ImageModel.MOVING_AVERAGE_DECAY)
     variables_to_restore = variable_averages.variables_to_restore()
-    print('variables_to_restore%s\n'%variables_to_restore)
+    print('variables_to_restore%s:'% variables_to_restore)
     saver = tf.train.Saver(variables_to_restore)
 
     # Build the summary operation based on the TF collection of Summaries.
