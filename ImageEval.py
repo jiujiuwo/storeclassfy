@@ -69,6 +69,8 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
     summary_op: Summary op.
   """
   with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    sess.run(tf.local_variables_initializer())
     ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
     if ckpt and ckpt.model_checkpoint_path:
       # Restores from checkpoint
@@ -82,7 +84,6 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
       return
 
     # Start the queue runners.
-    sess.run(tf.initialize_all_variables())
     coord = tf.train.Coordinator()
     try:
       threads = []
@@ -131,7 +132,7 @@ def evaluate():
     variable_averages = tf.train.ExponentialMovingAverage(
         ImageModel.MOVING_AVERAGE_DECAY)
     variables_to_restore = variable_averages.variables_to_restore()
-    print(variables_to_restore)
+    print('variables_to_restore%s\n'%variables_to_restore)
     saver = tf.train.Saver(variables_to_restore)
 
     # Build the summary operation based on the TF collection of Summaries.
