@@ -82,6 +82,7 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
       return
 
     # Start the queue runners.
+    sess.run(tf.initialize_all_variables())
     coord = tf.train.Coordinator()
     try:
       threads = []
@@ -130,6 +131,7 @@ def evaluate():
     variable_averages = tf.train.ExponentialMovingAverage(
         ImageModel.MOVING_AVERAGE_DECAY)
     variables_to_restore = variable_averages.variables_to_restore()
+    print(variables_to_restore)
     saver = tf.train.Saver(variables_to_restore)
 
     # Build the summary operation based on the TF collection of Summaries.
