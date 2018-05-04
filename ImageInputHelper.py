@@ -27,10 +27,9 @@ tf.app.flags.DEFINE_string('testLabelFilePath','./test.txt','the train data labe
 tf.app.flags.DEFINE_string('testImageDataDir','./test/','the train image file')
 
 tf.app.flags.DEFINE_integer('batchSize','16','batchSize')
-tf.app.flags.DEFINE_integer('numEpochs','100','numEpochs')
 tf.app.flags.DEFINE_integer('testNumEpochs','1','numEpochs')
 
-
+TRAIN_NUM_EPOCHS = 100
 FLAGS = tf.app.flags.FLAGS
 NUM_CLASSES = 100
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 2724
@@ -106,7 +105,7 @@ def getTrainInputs(dataDir=FLAGS.imageDataDir,batchSize=FLAGS.batchSize,labelFil
 
 	print('labelTensorShape',labelsTensor.shape)
 
-	inputQueue = tf.train.slice_input_producer([imagesTensor,labelsTensor],num_epochs=FLAGS.numEpochs)
+	inputQueue = tf.train.slice_input_producer([imagesTensor,labelsTensor],num_epochs=TRAIN_NUM_EPOCHS)
 
 	images = readImage(inputQueue,imageIterator.length,imageIterator.height)
 	#数据增强
@@ -147,7 +146,7 @@ def getTestInputs(dataDir=FLAGS.testImageDataDir,batchSize=FLAGS.batchSize,label
 
 	NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = len(imagePaths)
 
-	inputQueue = tf.train.slice_input_producer([imagesTensor,labelsTensor],num_epochs=FLAGS.testNumEpochs)
+	inputQueue = tf.train.slice_input_producer([imagesTensor,labelsTensor],num_epochs=1)
 
 	images = readImage(inputQueue,imageIterator.length,imageIterator.height)
 	#数据增强
