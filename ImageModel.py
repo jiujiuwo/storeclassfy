@@ -18,7 +18,7 @@ tf.app.flags.DEFINE_string('data_dir', './train/',
 # Global constants describing the CIFAR-10 data set.
 NUM_CLASSES = ImageInputHelper.NUM_CLASSES
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = ImageInputHelper.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
-NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = ImageInputHelper.NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
+NUM_EXAMPLES_PER_EPOCH_FOR_TEST = ImageInputHelper.NUM_EXAMPLES_PER_EPOCH_FOR_TEST
 
 
 # Constants describing the training process.
@@ -99,7 +99,7 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
   return var
 
 
-def distorted_inputs():
+def getTrainInputs():
   """Construct distorted input for CIFAR training using the Reader ops.
   使用Reader ops构建CIFAR10训练的失真输入，用于训练
 
@@ -286,7 +286,7 @@ def train(total_loss, global_step):
     train_op: op for training.
   """
   # Variables that affect learning rate.
-  num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
+  num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TEST / FLAGS.batch_size
   #print('num_batches_per_epoch: %s'%num_batches_per_epoch)
   decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
 
