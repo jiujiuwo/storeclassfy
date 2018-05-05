@@ -69,6 +69,8 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
     summary_op: Summary op.
   """
   with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    sess.run(tf.local_variables_initializer())
     ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
     if ckpt and ckpt.model_checkpoint_path:
       # Restores from checkpoint
@@ -99,7 +101,7 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
         step += 1
 
       # Compute precision @ 1.
-      precision = true_count / total_sample_count
+      precision = true_count / FLAGS.batch_size
       print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
 
       summary = tf.Summary()
@@ -130,6 +132,7 @@ def evaluate():
     variable_averages = tf.train.ExponentialMovingAverage(
         ImageModel.MOVING_AVERAGE_DECAY)
     variables_to_restore = variable_averages.variables_to_restore()
+    print('variables_to_restore%s:'% variables_to_restore)
     saver = tf.train.Saver(variables_to_restore)
 
     # Build the summary operation based on the TF collection of Summaries.
@@ -141,7 +144,6 @@ def evaluate():
       eval_once(saver, summary_writer, top_k_op, summary_op)
       if FLAGS.run_once:
         break
-      time.sleep(FLAGS.eval_interval_secs)
 
 
 def main(argv=None):  # pylint: disable=unused-argument

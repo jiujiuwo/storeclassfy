@@ -84,6 +84,7 @@ def train():
             log_device_placement=FLAGS.log_device_placement)) as mon_sess:
       while not mon_sess.should_stop():
         mon_sess.run(train_op)
+        print(mon_sess.run(labels))
 
 
 def main(argv=None):  # pylint: disable=unused-argument
