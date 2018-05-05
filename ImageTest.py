@@ -14,7 +14,7 @@ FLAGS = tf.app.flags.FLAGS
 
 NUM_EXAMPLES_PER_EPOCH_FOR_TEST=1000
 
-def test_once(saver, summary_writer, top_k_op, summary_op):
+def test_once(saver,logits):
   """Run Eval once.
 
   Args:
@@ -49,12 +49,14 @@ def test_once(saver, summary_writer, top_k_op, summary_op):
                                          start=True))
 
       num_iter = int(math.ceil(NUM_EXAMPLES_PER_EPOCH_FOR_TEST / FLAGS.batch_size))
-      labels = [] # Counts the number of correct predictions.
       step = 0
       while step < num_iter and not coord.should_stop():
         labels = sess.run(logits)
+        print(labels.shape)
         print(labels)
-        step += 1
+        labels = np.argmax(labels,axis=1)
+        print(labels.shape)
+        print(labels)
     except Exception as e:  # pylint: disable=broad-except
       coord.request_stop(e)
 
@@ -80,11 +82,7 @@ def test():
     saver = tf.train.Saver(variables_to_restore)
 
 
-    while True:
-      test_once(saver,logits)
-      if FLAGS.run_once:
-        break
-      time.sleep(FLAGS.eval_interval_secs)
+    test_once(saver,logits)
 
 
 def main(argv=None):  # pylint: disable=unused-argument
