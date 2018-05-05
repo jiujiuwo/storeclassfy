@@ -21,7 +21,7 @@ tf.app.flags.DEFINE_integer('log_frequency', 10,
 
 
 def train():
-  """Train CIFAR-10 for a number of steps."""
+
   with tf.Graph().as_default():
     global_step = tf.train.get_or_create_global_step()
 
@@ -30,8 +30,8 @@ def train():
     # GPU and resulting in a slow down.
     # 获取CIFAR-10的图像和标签。 强制输入管道到CPU：0以避免有时会在GPU上结束并导致减速的操作。
     with tf.device('/cpu:0'):
-      images, labels = ImageModel.distorted_inputs()
-      print('distorted_inputs')
+      images, labels = ImageModel.getTrainInputs()
+      print('getTrainInputs')
 
     # Build a Graph that computes the logits predictions from the
     # inference model.
@@ -81,10 +81,11 @@ def train():
                tf.train.NanTensorHook(loss),
                _LoggerHook()],
         config=tf.ConfigProto(
-            log_device_placement=FLAGS.log_device_placement)) as mon_sess:
+            log_device_placement=FLAGS.log_device_placement),
+        save_checkpoint_steps=200) as mon_sess:
       while not mon_sess.should_stop():
         mon_sess.run(train_op)
-        print(mon_sess.run(labels))
+        #print(mon_sess.run(labels))
 
 
 def main(argv=None):  # pylint: disable=unused-argument
