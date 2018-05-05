@@ -42,14 +42,7 @@ import numpy as np
 import tensorflow as tf
 
 import ImageModel
-import ImageInputHelper
 
-FLAGS = tf.app.flags.FLAGS
-
-tf.app.flags.DEFINE_string('testDataDir', './test/',
-                           """Directory where to write event logs.""")
-tf.app.flags.DEFINE_string('eval_data', 'test',
-                           """Either 'test' or 'train_eval'.""")
 tf.app.flags.DEFINE_string('checkpoint_dir', './checkpoint/',
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('eval_interval_secs', 60 * 5,
@@ -58,6 +51,9 @@ tf.app.flags.DEFINE_integer('eval_interval_secs', 60 * 5,
 tf.app.flags.DEFINE_boolean('run_once', False,
                          """Whether to run eval only once.""")
 
+FLAGS = tf.app.flags.FLAGS
+
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 2724
 
 def eval_once(saver, summary_writer, top_k_op, summary_op):
   """Run Eval once.
@@ -69,8 +65,10 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
     summary_op: Summary op.
   """
   with tf.Session() as sess:
+
     sess.run(tf.global_variables_initializer())
     sess.run(tf.local_variables_initializer())
+
     ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
     if ckpt and ckpt.model_checkpoint_path:
       # Restores from checkpoint
@@ -91,7 +89,7 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
         threads.extend(qr.create_threads(sess, coord=coord, daemon=True,
                                          start=True))
 
-      num_iter = int(math.ceil(ImageInputHelper.NUM_EXAMPLES_PER_EPOCH_FOR_EVAL / FLAGS.batch_size))
+      num_iter = int(math.ceil(NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size))
       true_count = 0  # Counts the number of correct predictions.
       total_sample_count = num_iter * FLAGS.batch_size
       step = 0
@@ -99,15 +97,19 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
         predictions = sess.run([top_k_op])
         true_count += np.sum(predictions)
         step += 1
+        #print(step)
 
       # Compute precision @ 1.
       precision = true_count / total_sample_count
       print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
 
       summary = tf.Summary()
-      summary.ParseFromString(sess.run(summary_op))
-      summary.value.add(tag='Precision @ 1', simple_value=precision)
-      summary_writer.add_summary(summary, global_step)
+      try:
+          summary.ParseFromString(sess.run(summary_op))
+          summary.value.add(tag='Precision @ 1', simple_value=precision)
+          summary_writer.add_summary(summary, global_step)
+      except Exception as e:
+        print(e)
     except Exception as e:  # pylint: disable=broad-except
       coord.request_stop(e)
 
@@ -119,7 +121,7 @@ def evaluate():
   """Eval CIFAR-10 for a number of steps."""
   with tf.Graph().as_default() as g:
     # Get images and labels for CIFAR-10.
-    images, labels = ImageModel.getTestInputs()
+    images, labels = ImageModel.getTrainInputs()
 
     # Build a Graph that computes the logits predictions from the
     # inference model.
@@ -132,7 +134,7 @@ def evaluate():
     variable_averages = tf.train.ExponentialMovingAverage(
         ImageModel.MOVING_AVERAGE_DECAY)
     variables_to_restore = variable_averages.variables_to_restore()
-    print('variables_to_restore%s:'% variables_to_restore)
+    #print('variables_to_restore%s:'% variables_to_restore)
     saver = tf.train.Saver(variables_to_restore)
 
     # Build the summary operation based on the TF collection of Summaries.
@@ -140,11 +142,7 @@ def evaluate():
 
     summary_writer = tf.summary.FileWriter(FLAGS.checkpoint_dir, g)
 
-    while True:
-      eval_once(saver, summary_writer, top_k_op, summary_op)
-      if FLAGS.run_once:
-        break
-      time.sleep(FLAGS.eval_interval_secs)
+    eval_once(saver, summary_writer, top_k_op, summary_op)
 
 
 def main(argv=None):  # pylint: disable=unused-argument
