@@ -40,6 +40,8 @@ def train():
     # logits: 未归一化的概率， 一般也就是 softmax的输入
     logits = ImageModel.inference(images)
 
+    print(logits)
+
     # Calculate loss.
     loss = ImageModel.loss(logits, labels)
 

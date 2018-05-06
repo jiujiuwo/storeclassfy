@@ -26,9 +26,9 @@ tf.app.flags.DEFINE_string('imageDataDir','./train/','the train image file')
 tf.app.flags.DEFINE_string('testLabelFilePath','./test.txt','the test data label file')
 tf.app.flags.DEFINE_string('testImageDataDir','./test/','the train image file')
 
-tf.app.flags.DEFINE_integer('batchSize','32','batchSize')
+tf.app.flags.DEFINE_integer('batchSize',64,'batchSize')
 
-tf.app.flags.DEFINE_integer('epochToTrain',1000,'epochToTrain')
+tf.app.flags.DEFINE_integer('epochToTrain',100,'epochToTrain')
 
 TRAIN_NUM_EPOCHS = 100
 FLAGS = tf.app.flags.FLAGS
@@ -173,5 +173,8 @@ def generateImageAndLabelBatch(image,label,minQueueExamples,batchSize,shuffle):
 		images,labelBatch = tf.train.batch([image,label],batch_size = batchSize,num_threads=numPreprocessThreads,
 			capacity = minQueueExamples + 3* batchSize)
 	tf.summary.image('images',images)
-	return images,tf.reshape(labelBatch,[batchSize])
+	print(images)
+	print(labelBatch)
+	labelBatch = tf.reshape(labelBatch,[batchSize])
+	return images,labelBatch
 

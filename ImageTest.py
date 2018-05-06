@@ -49,14 +49,16 @@ def test_once(saver,logits):
                                          start=True))
 
       num_iter = int(math.ceil(NUM_EXAMPLES_PER_EPOCH_FOR_TEST / FLAGS.batch_size))
+
+      predictions = []
       step = 0
       while step < num_iter and not coord.should_stop():
+        step = step +1
         labels = sess.run(logits)
-        print(labels.shape)
-        print(labels)
-        labels = np.argmax(labels,axis=1)
-        print(labels.shape)
-        print(labels)
+        predictions.extend(np.argmax(labels,axis=1))
+        #labels = np.argmax(labels,axis=1)
+      print('predictions %s'%predictions)
+      #print(len(predictions))
     except Exception as e:  # pylint: disable=broad-except
       coord.request_stop(e)
 

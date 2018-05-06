@@ -45,8 +45,6 @@ import ImageModel
 
 tf.app.flags.DEFINE_string('checkpoint_dir', './checkpoint/',
                            """Directory where to read model checkpoints.""")
-tf.app.flags.DEFINE_integer('eval_interval_secs', 60 * 5,
-                            """How often to run the eval.""")
 
 tf.app.flags.DEFINE_boolean('run_once', False,
                          """Whether to run eval only once.""")
@@ -95,11 +93,13 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
       step = 0
       while step < num_iter and not coord.should_stop():
         predictions = sess.run([top_k_op])
+        print(predictions)
         true_count += np.sum(predictions)
         step += 1
-        #print(step)
+        print(step)
 
       # Compute precision @ 1.
+      print(true_count)
       precision = true_count / total_sample_count
       print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
 
