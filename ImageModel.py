@@ -54,6 +54,13 @@ def _activation_summary(x):
   tf.summary.histogram(tensor_name + '/activations', x)
   tf.summary.scalar(tensor_name + '/sparsity',
                                        tf.nn.zero_fraction(x))
+  '''
+ tf.nn.zero_fraction(
+    value,
+    name=None
+)
+返回value中零的分数。这在summary中用于衡量和报告稀疏性很有用。 
+  '''
 
 
 def _variable_on_cpu(name, shape, initializer):
@@ -97,6 +104,14 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
     weight_decay = tf.multiply(tf.nn.l2_loss(var), wd, name='weight_loss')
     tf.add_to_collection('losses', weight_decay)
   return var
+  '''
+  tf.add_to_collection(
+    name,
+    value
+  )
+  name: The key for the collection. For example, the GraphKeys class contains many standard names for collections.
+  value: The value to add to the collection.
+  '''
 
 
 def getTrainInputs():
@@ -265,7 +280,7 @@ def _add_loss_summaries(total_loss):
   # same for the averaged version of the losses.
   for l in losses + [total_loss]:
     # Name each loss as '(raw)' and name the moving average version of the loss
-    # as the original loss name.
+    # as the original loss name.scalar:标量
     tf.summary.scalar(l.op.name + ' (raw)', l)
     tf.summary.scalar(l.op.name, loss_averages.average(l))
 
@@ -286,7 +301,7 @@ def train(total_loss, global_step):
     train_op: op for training.
   """
   # Variables that affect learning rate.
-  num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TEST / FLAGS.batch_size
+  num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
   #print('num_batches_per_epoch: %s'%num_batches_per_epoch)
   decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
 
@@ -313,15 +328,15 @@ def train(total_loss, global_step):
 
   # Add histograms for trainable variables.
   # 为可训练变量添加直方图。
-  '''for var in tf.trainable_variables():
+  for var in tf.trainable_variables():
     if var is not None:
-      tf.summary.histogram(var.op.name, var)'''
+      tf.summary.histogram(var.op.name, var)
 
   # Add histograms for gradients.
   # 为梯度添加直方图
-  '''for grad, var in grads:
+  for grad, var in grads:
     if grad is not None:
-      tf.summary.histogram(var.op.name + '/gradients', grad)'''
+      tf.summary.histogram(var.op.name + '/gradients', grad)
 
   # Track the moving averages of all trainable variables.
   # 跟踪所有可训练变量的移动平均值。
