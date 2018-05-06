@@ -3,6 +3,7 @@ import math
 import time
 
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 
 import ImageModel
@@ -54,13 +55,19 @@ def test_once(saver,logits):
       step = 0
       while step < num_iter and not coord.should_stop():
         step = step +1
+        print(step)
         labels = sess.run(logits)
         predictions.extend(np.argmax(labels,axis=1))
         #labels = np.argmax(labels,axis=1)
-      print('predictions %s'%predictions)
       #print(len(predictions))
     except Exception as e:  # pylint: disable=broad-except
       coord.request_stop(e)
+    finally:
+      result = pd.read_table('test.txt',delim_whitespace=True,header=None)
+      print(len(result))
+      result[1] = predictions[:NUM_EXAMPLES_PER_EPOCH_FOR_TEST+1]
+      print(len(result[1]))
+      result.to_csv('result.csv',index=None,header=None,sep=' ')
 
     coord.request_stop()
     coord.join(threads, stop_grace_period_secs=10)

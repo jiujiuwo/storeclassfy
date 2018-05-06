@@ -135,7 +135,7 @@ def getTrainInputs(dataDir=FLAGS.imageDataDir,batchSize=FLAGS.batchSize,labelFil
 	return generateImageAndLabelBatch(images,labels,minQueueExamples,batchSize,shuffle=False)
 
 
-def getTestInputs(dataDir=FLAGS.testImageDataDir,batchSize=FLAGS.batchSize,labelFilePath = FLAGS.labelFilePath):
+def getTestInputs(dataDir=FLAGS.testImageDataDir,batchSize=FLAGS.batchSize,labelFilePath = FLAGS.testLabelFilePath):
 	imageIterator = ImageIterator(dataDir,labelFilePath)
 	imagePaths = imageIterator.imagePaths
 
