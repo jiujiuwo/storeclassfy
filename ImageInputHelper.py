@@ -26,9 +26,9 @@ tf.app.flags.DEFINE_string('imageDataDir','./train/','the train image file')
 tf.app.flags.DEFINE_string('testLabelFilePath','./test.txt','the test data label file')
 tf.app.flags.DEFINE_string('testImageDataDir','./test/','the train image file')
 
-tf.app.flags.DEFINE_integer('batchSize','16','batchSize')
+tf.app.flags.DEFINE_integer('batchSize','32','batchSize')
 
-tf.app.flags.DEFINE_integer('epochToTrain',100,'epochToTrain')
+tf.app.flags.DEFINE_integer('epochToTrain',1000,'epochToTrain')
 
 TRAIN_NUM_EPOCHS = 100
 FLAGS = tf.app.flags.FLAGS
@@ -36,7 +36,7 @@ NUM_CLASSES = 100
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 2724
 NUM_EXAMPLES_PER_EPOCH_FOR_TEST = 100
 
-IMAGE_RESIZE_SIZE = 395
+IMAGE_RESIZE_SIZE = 100
 
 #遍历和获取图片信息的类
 class ImageIterator:

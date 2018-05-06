@@ -6,13 +6,14 @@ import tensorflow as tf
 
 import ImageModel
 import os
+import ImageEval 
 os.environ['TF_CPP_MIN_LOG_LEVEL']='3'
 FLAGS = tf.app.flags.FLAGS
 
 tf.app.flags.DEFINE_string('checkpointDir', './checkpoint/',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 1000000,
+tf.app.flags.DEFINE_integer('max_steps', 10000000,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
@@ -74,6 +75,7 @@ def train():
                         'sec/batch)')
           print (format_str % (datetime.now(), self._step, loss_value,
                                examples_per_sec, sec_per_batch))
+
 
     with tf.train.MonitoredTrainingSession(
         checkpoint_dir=FLAGS.checkpointDir,
