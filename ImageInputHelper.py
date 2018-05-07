@@ -34,7 +34,7 @@ TRAIN_NUM_EPOCHS = 100
 FLAGS = tf.app.flags.FLAGS
 NUM_CLASSES = 100
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 2724
-NUM_EXAMPLES_PER_EPOCH_FOR_TEST = 100
+NUM_EXAMPLES_PER_EPOCH_FOR_TEST = 1000
 
 IMAGE_RESIZE_SIZE = 100
 
@@ -142,30 +142,28 @@ def getTestInputs(dataDir=FLAGS.testImageDataDir,batchSize=FLAGS.batchSize,label
 	imagesTensor = tf.convert_to_tensor(imagePaths,dtype=tf.string)
 	labelsTensor = tf.convert_to_tensor(imageIterator.labels,dtype=tf.int64)
 
-	NUM_EXAMPLES_PER_EPOCH_FOR_TEST = len(imagePaths)
+#	NUM_EXAMPLES_PER_EPOCH_FOR_TEST = len(imagePaths)
 
-	inputQueue = tf.train.slice_input_producer([imagesTensor,labelsTensor],num_epochs=1)
+	inputQueue = tf.train.slice_input_producer([imagesTensor,labelsTensor],num_epochs=2)
 
 	images = readImage(inputQueue,imageIterator.length,imageIterator.height)
 	#数据增强
 	labels = inputQueue[1]
 	#print('labels:',labels)
 
-	with tf.name_scope('data_augmentation'):
-		logger.info(inputQueue)
+	width,height = imageIterator.maxLenthHeight()
 
-		width,height = imageIterator.maxLenthHeight()
-
-		minFractionOfExampleInQueue = 0.1
-		minQueueExamples = int(NUM_EXAMPLES_PER_EPOCH_FOR_TEST*minFractionOfExampleInQueue)
+	minFractionOfExampleInQueue = 0.4
+	minQueueExamples = int(NUM_EXAMPLES_PER_EPOCH_FOR_TEST*minFractionOfExampleInQueue)
 		#发现
-		print ('Filling queue with %d images before starting to test. '
+	print ('Filling queue with %d images before starting to test. '
 			'This will take a few minutes.' % minQueueExamples)
+	print(images,labels)
 	return generateImageAndLabelBatch(images,labels,minQueueExamples,batchSize,shuffle=False)
 
 
 def generateImageAndLabelBatch(image,label,minQueueExamples,batchSize,shuffle):
-	numPreprocessThreads = 16
+	numPreprocessThreads = 1
 	if shuffle:
 		images,labelBatch = tf.train.shuffle_batch([image,label],batchSize = batchSize,num_threads=numPreprocessThreads,
 			capacity = minQueueExamples + 3* batchSize,min_after_dequeue = minQueueExamples)
@@ -173,8 +171,6 @@ def generateImageAndLabelBatch(image,label,minQueueExamples,batchSize,shuffle):
 		images,labelBatch = tf.train.batch([image,label],batch_size = batchSize,num_threads=numPreprocessThreads,
 			capacity = minQueueExamples + 3* batchSize)
 	tf.summary.image('images',images)
-	print(images)
-	print(labelBatch)
 	labelBatch = tf.reshape(labelBatch,[batchSize])
 	return images,labelBatch
 
