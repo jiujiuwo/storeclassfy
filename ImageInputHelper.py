@@ -26,9 +26,9 @@ tf.app.flags.DEFINE_string('imageDataDir','./train/','the train image file')
 tf.app.flags.DEFINE_string('testLabelFilePath','./test.txt','the test data label file')
 tf.app.flags.DEFINE_string('testImageDataDir','./test/','the train image file')
 
-tf.app.flags.DEFINE_integer('batchSize',64,'batchSize')
+tf.app.flags.DEFINE_integer('batchSize',4,'batchSize')
 
-tf.app.flags.DEFINE_integer('epochToTrain',100,'epochToTrain')
+tf.app.flags.DEFINE_integer('epochToTrain',2000,'epochToTrain')
 
 TRAIN_NUM_EPOCHS = 100
 FLAGS = tf.app.flags.FLAGS
@@ -92,9 +92,10 @@ def readImage(inputQueue,length,height):
 	print('image size afer resize: %d'%size)
 	if inputQueue != None:
 		images = tf.read_file(inputQueue[0])
-		plt.show(inputQueue[0])
-		images = tf.image.convert_image_dtype(tf.image.decode_png(images, channels=3), tf.int64)
+		#plt.show(inputQueue[0])
+		images = tf.image.convert_image_dtype(tf.image.decode_png(images, channels=3), tf.int32)
 		resized = tf.image.resize_images(images,[size,size],method=0)
+		#resized = resized / 255
 		resized.set_shape([size,size,3])
 		return resized
 	else:
@@ -105,6 +106,9 @@ def readImage(inputQueue,length,height):
 def getTrainInputs(dataDir=FLAGS.imageDataDir,batchSize=FLAGS.batchSize,labelFilePath = FLAGS.labelFilePath):
 	imageIterator = ImageIterator(dataDir,labelFilePath)
 	imagePaths = imageIterator.imagePaths
+	#print('input queue shunxu:')
+	#print(imagePaths[0],imagePaths[-1])
+	#print(imageIterator.labels[0],imageIterator.labels[-1])
 
 	NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = len(imagePaths)
 
@@ -112,8 +116,10 @@ def getTrainInputs(dataDir=FLAGS.imageDataDir,batchSize=FLAGS.batchSize,labelFil
 	labelsTensor = tf.convert_to_tensor(imageIterator.labels,dtype=tf.int64)
 
 	#print('labelTensorShape',labelsTensor.shape)
-
+	print('imagesTensor:%s'%imagesTensor)
+	print('labelsTensor:%s'%labelsTensor)
 	inputQueue = tf.train.slice_input_producer([imagesTensor,labelsTensor],num_epochs=FLAGS.epochToTrain)
+	print('inputQueue:%s'%inputQueue)
 
 	images = readImage(inputQueue,imageIterator.length,imageIterator.height)
 	#数据增强
@@ -127,7 +133,7 @@ def getTrainInputs(dataDir=FLAGS.imageDataDir,batchSize=FLAGS.batchSize,labelFil
 
 		width,height = imageIterator.maxLenthHeight()
 
-		minFractionOfExampleInQueue = 0.1
+		minFractionOfExampleInQueue = 0.4
 		minQueueExamples = int(NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN*minFractionOfExampleInQueue)
 		#发现
 		print ('Filling queue with %d images before starting to train. '
@@ -143,8 +149,10 @@ def getTestInputs(dataDir=FLAGS.testImageDataDir,batchSize=FLAGS.batchSize,label
 	labelsTensor = tf.convert_to_tensor(imageIterator.labels,dtype=tf.int64)
 
 #	NUM_EXAMPLES_PER_EPOCH_FOR_TEST = len(imagePaths)
-
+	#print('imagesTensor:%s'%imagesTensor)
+	#print('labelsTensor:%s'%labelsTensor)
 	inputQueue = tf.train.slice_input_producer([imagesTensor,labelsTensor],num_epochs=2)
+	#print('inputQueue:%s'%inputQueue)
 
 	images = readImage(inputQueue,imageIterator.length,imageIterator.height)
 	#数据增强
@@ -153,7 +161,7 @@ def getTestInputs(dataDir=FLAGS.testImageDataDir,batchSize=FLAGS.batchSize,label
 
 	width,height = imageIterator.maxLenthHeight()
 
-	minFractionOfExampleInQueue = 0.4
+	minFractionOfExampleInQueue = 0.6
 	minQueueExamples = int(NUM_EXAMPLES_PER_EPOCH_FOR_TEST*minFractionOfExampleInQueue)
 		#发现
 	print ('Filling queue with %d images before starting to test. '
@@ -163,7 +171,7 @@ def getTestInputs(dataDir=FLAGS.testImageDataDir,batchSize=FLAGS.batchSize,label
 
 
 def generateImageAndLabelBatch(image,label,minQueueExamples,batchSize,shuffle):
-	numPreprocessThreads = 1
+	numPreprocessThreads = 6
 	if shuffle:
 		images,labelBatch = tf.train.shuffle_batch([image,label],batchSize = batchSize,num_threads=numPreprocessThreads,
 			capacity = minQueueExamples + 3* batchSize,min_after_dequeue = minQueueExamples)

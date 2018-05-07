@@ -86,10 +86,12 @@ def train():
                _LoggerHook()],
         config=tf.ConfigProto(
             log_device_placement=FLAGS.log_device_placement),
-        save_checkpoint_steps=200) as mon_sess:
+        save_checkpoint_steps=500) as mon_sess:
       while not mon_sess.should_stop():
         mon_sess.run(train_op)
-        #print(mon_sess.run(labels))
+        print(mon_sess.run(images))
+        print(mon_sess.run(labels))
+
 
 
 def main(argv=None):  # pylint: disable=unused-argument

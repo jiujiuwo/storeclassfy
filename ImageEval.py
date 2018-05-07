@@ -93,13 +93,14 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
       step = 0
       while step < num_iter and not coord.should_stop():
         predictions = sess.run([top_k_op])
-        print(predictions)
+        print(sess.run(images))
+        print(sess.run(labels))
         true_count += np.sum(predictions)
         step += 1
         print(step)
 
       # Compute precision @ 1.
-      print(true_count)
+      #print(true_count)
       precision = true_count / total_sample_count
       print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
 
@@ -112,7 +113,6 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
         print(e)
     except Exception as e:  # pylint: disable=broad-except
       coord.request_stop(e)
-
     coord.request_stop()
     coord.join(threads, stop_grace_period_secs=10)
 
@@ -142,7 +142,7 @@ def evaluate():
 
     summary_writer = tf.summary.FileWriter(FLAGS.checkpoint_dir, g)
 
-    eval_once(saver, summary_writer, top_k_op, summary_op)
+    eval_once(saver, summary_writer, top_k_op, summary_op,images,labels)
 
 
 def main(argv=None):  # pylint: disable=unused-argument
