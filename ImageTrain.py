@@ -89,14 +89,15 @@ def train():
         config=tf.ConfigProto(
             log_device_placement=FLAGS.log_device_placement),
         save_checkpoint_steps=500)) as mon_sess:
+      mon_sess.add_tensor_filter('my_filter',my_filter_callable)
       while not mon_sess.should_stop():
-        mon_sess.add_tensor_filter('my_filter',my_filter_callable)
         mon_sess.run(train_op)
         #print(mon_sess.run(images))
         #print(mon_sess.run(labels))
 
 def my_filter_callable(datum, tensor):
   # A filter that detects zero-valued scalars.
+  #print(datum,tensor)
   return len(tensor.shape) == 0 and tensor == 0.0
 
 def main(argv=None):  # pylint: disable=unused-argument
