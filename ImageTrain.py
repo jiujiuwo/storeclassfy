@@ -90,8 +90,8 @@ def train():
             log_device_placement=FLAGS.log_device_placement),
         save_checkpoint_steps=500) as mon_sess:
       while not mon_sess.should_stop():
-        sess = tf_debug.LocalCLIDebugWrapperSession(mon_sess)
-        sess.run(train_op)
+        #sess = tf_debug.LocalCLIDebugWrapperSession(mon_sess)
+        mon_sess.run(train_op)
         #print(mon_sess.run(images))
         #print(mon_sess.run(labels))
 

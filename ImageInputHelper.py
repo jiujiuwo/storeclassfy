@@ -72,6 +72,7 @@ class ImageIterator:
 				if label >=0:
 					labels.append(label)
 				else:
+					labels.append(0)
 					print('label error:%s'%self.imageNames[i])
 			except KeyError:
 				print(self.imageNames[i])
