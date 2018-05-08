@@ -26,7 +26,7 @@ tf.app.flags.DEFINE_string('imageDataDir','./train/','the train image file')
 tf.app.flags.DEFINE_string('testLabelFilePath','./test.txt','the test data label file')
 tf.app.flags.DEFINE_string('testImageDataDir','./test/','the train image file')
 
-tf.app.flags.DEFINE_integer('batchSize',128,'batchSize')
+tf.app.flags.DEFINE_integer('batchSize',64,'batchSize')
 
 tf.app.flags.DEFINE_integer('epochToTrain',2000,'epochToTrain')
 
