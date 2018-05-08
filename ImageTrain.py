@@ -81,18 +81,17 @@ def train():
                                examples_per_sec, sec_per_batch))
 
 
-    with tf.train.MonitoredTrainingSession(
+    with  tf_debug.LocalCLIDebugWrapperSession(tf.train.MonitoredTrainingSession(
         checkpoint_dir=FLAGS.checkpointDir,
         hooks=[tf.train.StopAtStepHook(last_step=FLAGS.max_steps),
                tf.train.NanTensorHook(loss),
                _LoggerHook()],
         config=tf.ConfigProto(
             log_device_placement=FLAGS.log_device_placement),
-        save_checkpoint_steps=500) as mon_sess:
+        save_checkpoint_steps=500)) as mon_sess:
       while not mon_sess.should_stop():
-        sess = tf_debug.LocalCLIDebugWrapperSession(mon_sess)
-        sess.add_tensor_filter('my_filter',my_filter_callable)
-        sess.run(train_op)
+        mon_sess.add_tensor_filter('my_filter',my_filter_callable)
+        mon_sess.run(train_op)
         #print(mon_sess.run(images))
         #print(mon_sess.run(labels))
 
