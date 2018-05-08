@@ -26,7 +26,7 @@ tf.app.flags.DEFINE_string('imageDataDir','./train/','the train image file')
 tf.app.flags.DEFINE_string('testLabelFilePath','./test.txt','the test data label file')
 tf.app.flags.DEFINE_string('testImageDataDir','./test/','the train image file')
 
-tf.app.flags.DEFINE_integer('batchSize',64,'batchSize')
+tf.app.flags.DEFINE_integer('batchSize',128,'batchSize')
 
 tf.app.flags.DEFINE_integer('epochToTrain',2000,'epochToTrain')
 
@@ -102,7 +102,7 @@ def readImage(inputQueue,length,height):
 		resized = tf.image.resize_images(images,[size,size],method=0)
 		#resized = resized / 255
 		resized.set_shape([size,size,3])
-		return resized
+		return resizedgit
 	else:
 		logger.info('文件%s不存在'.format(inputQueue))
 		return None
@@ -166,7 +166,7 @@ def getTestInputs(dataDir=FLAGS.testImageDataDir,batchSize=FLAGS.batchSize,label
 
 	width,height = imageIterator.maxLenthHeight()
 
-	minFractionOfExampleInQueue = 0.6
+	minFractionOfExampleInQueue = 0.4
 	minQueueExamples = int(NUM_EXAMPLES_PER_EPOCH_FOR_TEST*minFractionOfExampleInQueue)
 		#发现
 	print ('Filling queue with %d images before starting to test. '
@@ -176,7 +176,7 @@ def getTestInputs(dataDir=FLAGS.testImageDataDir,batchSize=FLAGS.batchSize,label
 
 
 def generateImageAndLabelBatch(image,label,minQueueExamples,batchSize,shuffle):
-	numPreprocessThreads = 6
+	numPreprocessThreads = 1
 	if shuffle:
 		images,labelBatch = tf.train.shuffle_batch([image,label],batchSize = batchSize,num_threads=numPreprocessThreads,
 			capacity = minQueueExamples + 3* batchSize,min_after_dequeue = minQueueExamples)
