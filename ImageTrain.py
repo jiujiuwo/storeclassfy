@@ -87,7 +87,7 @@ def train():
                tf.train.NanTensorHook(loss),
                _LoggerHook()],
         config=tf.ConfigProto(
-            log_device_placement=FLAGS.log_device_placement),
+            log_device_placement=FLAGS.log_device_placement,device_count={'cpu':0}),
         save_checkpoint_steps=500) as mon_sess:
       while not mon_sess.should_stop():
         mon_sess.run(train_op)
