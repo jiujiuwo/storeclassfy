@@ -90,12 +90,17 @@ def train():
             log_device_placement=FLAGS.log_device_placement),
         save_checkpoint_steps=500) as mon_sess:
       while not mon_sess.should_stop():
-        #sess = tf_debug.LocalCLIDebugWrapperSession(mon_sess)
-        mon_sess.run(train_op)
+        sess = tf_debug.LocalCLIDebugWrapperSession(mon_sess)
+        sess.add_tensor_filter('my_filter',my_filter_callable)
+        sess.run(train_op)
         #print(mon_sess.run(images))
         #print(mon_sess.run(labels))
 
+def my_filter_callable(datum, tensor):
+  # A filter that detects zero-valued scalars.
+  return len(tensor.shape) == 0 and tensor == 0.0
 
+sess.add_tensor_filter('my_filter', my_filter_callable)
 
 def main(argv=None):  # pylint: disable=unused-argument
   train()
