@@ -26,7 +26,7 @@ tf.app.flags.DEFINE_string('imageDataDir','./train/','the train image file')
 tf.app.flags.DEFINE_string('testLabelFilePath','./test.txt','the test data label file')
 tf.app.flags.DEFINE_string('testImageDataDir','./test/','the train image file')
 
-tf.app.flags.DEFINE_integer('batchSize',4,'batchSize')
+tf.app.flags.DEFINE_integer('batchSize',64,'batchSize')
 
 tf.app.flags.DEFINE_integer('epochToTrain',2000,'epochToTrain')
 
@@ -68,7 +68,11 @@ class ImageIterator:
 		#print(self.labelDic)
 		for i in range (len(self.imageNames)):
 			try:
-				labels.append(int(self.labelDic[self.imageNames[i]])-1)
+				label = int(self.labelDic[self.imageNames[i]])-1
+				if label >=0:
+					labels.append(label)
+				else:
+					print('label error:%s'%self.imageNames[i])
 			except KeyError:
 				print(self.imageNames[i])
 		return labels
@@ -93,7 +97,7 @@ def readImage(inputQueue,length,height):
 	if inputQueue != None:
 		images = tf.read_file(inputQueue[0])
 		#plt.show(inputQueue[0])
-		images = tf.image.convert_image_dtype(tf.image.decode_png(images, channels=3), tf.int32)
+		images = tf.image.convert_image_dtype(tf.image.decode_png(images, channels=3), tf.float32)
 		resized = tf.image.resize_images(images,[size,size],method=0)
 		#resized = resized / 255
 		resized.set_shape([size,size,3])
@@ -146,7 +150,7 @@ def getTestInputs(dataDir=FLAGS.testImageDataDir,batchSize=FLAGS.batchSize,label
 	imagePaths = imageIterator.imagePaths
 
 	imagesTensor = tf.convert_to_tensor(imagePaths,dtype=tf.string)
-	labelsTensor = tf.convert_to_tensor(imageIterator.labels,dtype=tf.int64)
+	labelsTensor = tf.convert_to_tensor(imageIterator.labels,dtype=tf.float32)
 
 #	NUM_EXAMPLES_PER_EPOCH_FOR_TEST = len(imagePaths)
 	#print('imagesTensor:%s'%imagesTensor)

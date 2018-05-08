@@ -10,7 +10,7 @@ import ImageInputHelper
 FLAGS = tf.app.flags.FLAGS
 
 # Basic model parameters.
-tf.app.flags.DEFINE_integer('batch_size', 4,
+tf.app.flags.DEFINE_integer('batch_size', 64,
                             """Number of images to process in a batch.""")
 tf.app.flags.DEFINE_string('data_dir', './train/',
                            """Path to the image directory.""")
@@ -25,7 +25,7 @@ NUM_EXAMPLES_PER_EPOCH_FOR_TEST = ImageInputHelper.NUM_EXAMPLES_PER_EPOCH_FOR_TE
 MOVING_AVERAGE_DECAY = 0.9999     # The decay to use for the moving average.移动均值的指数衰减，用于参数更新
 NUM_EPOCHS_PER_DECAY = 350.0      # Epochs after which learning rate decays.学习率衰减的epoch
 LEARNING_RATE_DECAY_FACTOR = 0.1  # Learning rate decay factor.学习率衰减率
-INITIAL_LEARNING_RATE = 0.5      # Initial learning rate.初始学习率
+INITIAL_LEARNING_RATE = 0.1  # Initial learning rate.初始学习率
 
 # If a model is trained with multiple GPUs, prefix all Op names with tower_name
 # to differentiate the operations. Note that this prefix is removed from the
@@ -174,8 +174,8 @@ def inference(images):
   pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],
                          padding='SAME', name='pool1')
   # norm1  第一层正则化
-  norm1 = tf.nn.lrn(pool1, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,
-                    name='norm1')
+  #norm1 = tf.nn.lrn(pool1, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,
+                    #name='norm1')
 
   # conv2  第二层卷积
   with tf.variable_scope('conv2') as scope:
@@ -183,17 +183,17 @@ def inference(images):
                                          shape=[5, 5, 64, 64],
                                          stddev=5e-2,
                                          wd=None)
-    conv = tf.nn.conv2d(norm1, kernel, [1, 1, 1, 1], padding='SAME')
+    conv = tf.nn.conv2d(pool1, kernel, [1, 1, 1, 1], padding='SAME')
     biases = _variable_on_cpu('biases', [64], tf.constant_initializer(0.1))
     pre_activation = tf.nn.bias_add(conv, biases)
     conv2 = tf.nn.relu(pre_activation, name=scope.name)
     _activation_summary(conv2)
 
   # norm2 第二层正则化
-  norm2 = tf.nn.lrn(conv2, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,
-                    name='norm2')
+  #norm2 = tf.nn.lrn(conv2, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,
+                    #name='norm2')
   # pool2 第二层池化
-  pool2 = tf.nn.max_pool(norm2, ksize=[1, 3, 3, 1],
+  pool2 = tf.nn.max_pool(conv2, ksize=[1, 3, 3, 1],
                          strides=[1, 2, 2, 1], padding='SAME', name='pool2')
 
   # local3 第一层全连接
