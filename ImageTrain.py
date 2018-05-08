@@ -96,8 +96,12 @@ def train():
         #print(mon_sess.run(labels))
 def my_filter_callable(datum, tensor):
   # A filter that detects zero-valued scalars.
-  print(datum,tensor)
-  return len(tensor.shape) == 0 and tensor == 0.0
+  #print(datum,tensor)
+  try:
+    return len(tensor.shape) == 0 and tensor == 0.0
+  except:
+    return False 
+
 
 
 def main(argv=None):  # pylint: disable=unused-argument
