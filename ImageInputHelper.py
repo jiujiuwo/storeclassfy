@@ -102,7 +102,7 @@ def readImage(inputQueue,length,height):
 		resized = tf.image.resize_images(images,[size,size],method=0)
 		#resized = resized / 255
 		resized.set_shape([size,size,3])
-		return resizedgit
+		return resized
 	else:
 		logger.info('文件%s不存在'.format(inputQueue))
 		return None
