@@ -7,6 +7,8 @@ import tensorflow as tf
 import ImageModel
 import os
 import ImageEval 
+from tensorflow.python import debug as tf_debug
+
 os.environ['TF_CPP_MIN_LOG_LEVEL']='3'
 FLAGS = tf.app.flags.FLAGS
 
@@ -88,7 +90,8 @@ def train():
             log_device_placement=FLAGS.log_device_placement),
         save_checkpoint_steps=500) as mon_sess:
       while not mon_sess.should_stop():
-        mon_sess.run(train_op)
+        sess = tf_debug.LocalCLIDebugWrapperSession(mon_sess)
+        sess.run(train_op)
         #print(mon_sess.run(images))
         #print(mon_sess.run(labels))
 
