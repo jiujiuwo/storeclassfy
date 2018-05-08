@@ -81,7 +81,7 @@ def train():
                                examples_per_sec, sec_per_batch))
 
 
-    with  sess = tf_debug.LocalCLIDebugWrapperSession(tf.train.MonitoredTrainingSession(
+    with tf_debug.LocalCLIDebugWrapperSession(tf.train.MonitoredTrainingSession(
         checkpoint_dir=FLAGS.checkpointDir,
         hooks=[tf.train.StopAtStepHook(last_step=FLAGS.max_steps),
                tf.train.NanTensorHook(loss),
