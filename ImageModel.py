@@ -25,7 +25,7 @@ NUM_EXAMPLES_PER_EPOCH_FOR_TEST = ImageInputHelper.NUM_EXAMPLES_PER_EPOCH_FOR_TE
 MOVING_AVERAGE_DECAY = 0.9999     # The decay to use for the moving average.移动均值的指数衰减，用于参数更新
 NUM_EPOCHS_PER_DECAY = 350.0      # Epochs after which learning rate decays.学习率衰减的epoch
 LEARNING_RATE_DECAY_FACTOR = 0.1  # Learning rate decay factor.学习率衰减率
-INITIAL_LEARNING_RATE = 0.1  # Initial learning rate.初始学习率
+INITIAL_LEARNING_RATE = 0.01  # Initial learning rate.初始学习率
 
 # If a model is trained with multiple GPUs, prefix all Op names with tower_name
 # to differentiate the operations. Note that this prefix is removed from the
@@ -216,22 +216,6 @@ def inference(images):
     local4 = tf.nn.relu(tf.matmul(local3, weights) + biases, name=scope.name)
     _activation_summary(local4)
 
-    # local5 第3层全连接
-  with tf.variable_scope('local5') as scope:
-    weights = _variable_with_weight_decay('weights', shape=[512, 512],
-                                          stddev=0.04, wd=0.004)
-    biases = _variable_on_cpu('biases', [512], tf.constant_initializer(0.1))
-    local5 = tf.nn.relu(tf.matmul(local4, weights) + biases, name=scope.name)
-    _activation_summary(local5)
-
-    # local6 第二层全连接
-  with tf.variable_scope('local6') as scope:
-    weights = _variable_with_weight_decay('weights', shape=[512, 256],
-                                          stddev=0.04, wd=0.004)
-    biases = _variable_on_cpu('biases', [256], tf.constant_initializer(0.1))
-    local6 = tf.nn.relu(tf.matmul(local5, weights) + biases, name=scope.name)
-    _activation_summary(local6)
-
   # linear layer(WX + b),
   # We don't apply softmax here because
   # tf.nn.sparse_softmax_cross_entropy_with_logits accepts the unscaled logits
@@ -239,11 +223,11 @@ def inference(images):
   # 线性层（WX + b），我们不在这里应用softmax，因为
   # tf.nn.sparse_softmax_cross_entropy_with_logits接受未缩放的logits并在内部执行softmax以提高效率。
   with tf.variable_scope('softmax_linear') as scope:
-    weights = _variable_with_weight_decay('weights', [256, NUM_CLASSES],
+    weights = _variable_with_weight_decay('weights', [512, NUM_CLASSES],
                                           stddev=1/192.0, wd=None)
     biases = _variable_on_cpu('biases', [NUM_CLASSES],
                               tf.constant_initializer(0.0))
-    softmax_linear = tf.add(tf.matmul(local6, weights), biases, name=scope.name)
+    softmax_linear = tf.add(tf.matmul(local4, weights), biases, name=scope.name)
     _activation_summary(softmax_linear)
 
   return softmax_linear

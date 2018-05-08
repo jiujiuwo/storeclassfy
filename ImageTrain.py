@@ -81,28 +81,18 @@ def train():
                                examples_per_sec, sec_per_batch))
 
 
-    with  tf_debug.LocalCLIDebugWrapperSession(tf.train.MonitoredTrainingSession(
+    with  tf.train.MonitoredTrainingSession(
         checkpoint_dir=FLAGS.checkpointDir,
         hooks=[tf.train.StopAtStepHook(last_step=FLAGS.max_steps),
                tf.train.NanTensorHook(loss),
                _LoggerHook()],
         config=tf.ConfigProto(
             log_device_placement=FLAGS.log_device_placement),
-        save_checkpoint_steps=500)) as mon_sess:
-      mon_sess.add_tensor_filter('my_filter',my_filter_callable)
+        save_checkpoint_steps=500) as mon_sess:
       while not mon_sess.should_stop():
         mon_sess.run(train_op)
         #print(mon_sess.run(images))
         #print(mon_sess.run(labels))
-
-def my_filter_callable(datum, tensor):
-  # A filter that detects zero-valued scalars.
-  #print(datum,tensor)
-  try:
-    length = len(tensor.shape)
-  except:
-    return False
-  return length == 0 and tensor == 0.0
 
 def main(argv=None):  # pylint: disable=unused-argument
   train()
