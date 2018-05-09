@@ -26,7 +26,7 @@ tf.app.flags.DEFINE_string('imageDataDir','./train/','the train image file')
 tf.app.flags.DEFINE_string('testLabelFilePath','./test.txt','the test data label file')
 tf.app.flags.DEFINE_string('testImageDataDir','./test/','the train image file')
 
-tf.app.flags.DEFINE_integer('batchSize',128,'batchSize')
+tf.app.flags.DEFINE_integer('batchSize',64,'batchSize')
 
 tf.app.flags.DEFINE_integer('epochToTrain',2000,'epochToTrain')
 
@@ -102,7 +102,7 @@ def readImage(inputQueue,length,height):
 		resized = tf.image.resize_images(images,[size,size],method=0)
 		#resized = resized / 255
 		resized.set_shape([size,size,3])
-		return resizedgit
+		return resized
 	else:
 		logger.info('文件%s不存在'.format(inputQueue))
 		return None
