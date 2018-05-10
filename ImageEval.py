@@ -53,6 +53,8 @@ FLAGS = tf.app.flags.FLAGS
 
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 2724
 
+np.set_printoptions(threshold=100)
+
 def eval_once(saver, summary_writer, top_k_op, summary_op,logits,labels):
   """Run Eval once.
 
