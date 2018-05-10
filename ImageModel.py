@@ -25,7 +25,7 @@ NUM_EXAMPLES_PER_EPOCH_FOR_TEST = ImageInputHelper.NUM_EXAMPLES_PER_EPOCH_FOR_TE
 MOVING_AVERAGE_DECAY = 0.9999     # The decay to use for the moving average.移动均值的指数衰减，用于参数更新
 NUM_EPOCHS_PER_DECAY = 350.0      # Epochs after which learning rate decays.学习率衰减的epoch
 LEARNING_RATE_DECAY_FACTOR = 0.1  # Learning rate decay factor.学习率衰减率
-INITIAL_LEARNING_RATE = 0.1  # Initial learning rate.初始学习率
+INITIAL_LEARNING_RATE = 0.05  # Initial learning rate.初始学习率
 
 # If a model is trained with multiple GPUs, prefix all Op names with tower_name
 # to differentiate the operations. Note that this prefix is removed from the
