@@ -97,11 +97,12 @@ def eval_once(saver, summary_writer, top_k_op, summary_op,logits,labels):
         print(sess.run(labels))
         preLabels = sess.run(logits)
         print('logits')
+        print(preLabels)
         print(np.argmax(preLabels,axis=1))
         true_count += np.sum(predictions)
         step += 1
         print(step)
-        print(predictions)
+        #print(predictions)
 
       # Compute precision @ 1.
       #print(true_count)
