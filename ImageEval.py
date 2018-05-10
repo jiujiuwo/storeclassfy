@@ -53,7 +53,7 @@ FLAGS = tf.app.flags.FLAGS
 
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 2724
 
-def eval_once(saver, summary_writer, top_k_op, summary_op):
+def eval_once(saver, summary_writer, top_k_op, summary_op,logits,labels):
   """Run Eval once.
 
   Args:
@@ -93,8 +93,9 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
       step = 0
       while step < num_iter and not coord.should_stop():
         predictions = sess.run([top_k_op])
-        #print(sess.run(images))
-        #print(sess.run(labels))
+        print(sess.run(labels))
+        logits = sess.run(logits)
+        print(np.argmax(logits,axis=1))
         true_count += np.sum(predictions)
         step += 1
         print(step)
@@ -142,7 +143,7 @@ def evaluate():
 
     summary_writer = tf.summary.FileWriter(FLAGS.checkpoint_dir, g)
 
-    eval_once(saver, summary_writer, top_k_op, summary_op)
+    eval_once(saver, summary_writer, top_k_op,labels,logits,summary_op)
 
 
 def main(argv=None):  # pylint: disable=unused-argument
