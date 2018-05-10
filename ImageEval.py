@@ -95,6 +95,7 @@ def eval_once(saver, summary_writer, top_k_op, summary_op,logits,labels):
       step = 0
       while step < num_iter and not coord.should_stop():
         predictions = sess.run([top_k_op])
+        print(predictions)
         print('labels:')
         tags = sess.run(labels)
         print(tags)
@@ -107,8 +108,6 @@ def eval_once(saver, summary_writer, top_k_op, summary_op,logits,labels):
         true_count += np.sum(predictions)
         step += 1
         print(step)
-        #print(predictions)
-
       # Compute precision @ 1.
       #print(true_count)
       precision = true_count / total_sample_count
