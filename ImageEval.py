@@ -93,7 +93,7 @@ def eval_once(saver, summary_writer, top_k_op, summary_op,logits,labels):
       step = 0
       while step < num_iter and not coord.should_stop():
         predictions = sess.run([top_k_op])
-        print(sess.run(labels))
+        print(labels)
         logits = sess.run(logits)
         print(np.argmax(logits,axis=1))
         true_count += np.sum(predictions)
