@@ -55,7 +55,7 @@ NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 2724
 
 #np.set_printoptions(threshold=100)
 
-def eval_once(saver, summary_writer, top_k_op, summary_op,logits,labels):
+def eval_once(saver, summary_writer, summary_op,logits,labels):
   """Run Eval once.
 
   Args:
@@ -94,22 +94,15 @@ def eval_once(saver, summary_writer, top_k_op, summary_op,logits,labels):
       total_sample_count = num_iter * FLAGS.batch_size
       step = 0
       while step < num_iter and not coord.should_stop():
-        predictions = sess.run(top_k_op)
-        print(predictions)
-        print('labels:')
         tags = sess.run(labels)
         print(tags)
-        np.savetxt("./tags/step%d.txt"%step,tags)
         preLabels = sess.run(logits)
-        print('logits')
-        print(preLabels)
-        np.savetxt("./prediction/step%d.txt"%step,preLabels)
-        print(np.argmax(preLabels,axis=1))
-        true_count += np.sum(predictions)
-        step += 1
-        print(step)
-      # Compute precision @ 1.
-      #print(true_count)
+        predictions = np.argmax(preLabels,axis=1)
+        print(predictions)
+        result = predictions - tags
+        for i in len(result):
+          if result[i] ==0:
+            true_count++
       precision = true_count / total_sample_count
       print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
 
@@ -136,9 +129,6 @@ def evaluate():
     # inference model.
     logits = ImageModel.inference(images)
 
-    # Calculate predictions.
-    top_k_op = tf.nn.in_top_k(logits, labels, 1)
-
     # Restore the moving average version of the learned variables for eval.
     variable_averages = tf.train.ExponentialMovingAverage(
         ImageModel.MOVING_AVERAGE_DECAY)
@@ -151,7 +141,7 @@ def evaluate():
 
     summary_writer = tf.summary.FileWriter(FLAGS.checkpoint_dir, g)
 
-    eval_once(saver, summary_writer, top_k_op,summary_op,logits,labels)
+    eval_once(saver, summary_writer,summary_op,logits,labels)
 
 
 def main(argv=None):  # pylint: disable=unused-argument
