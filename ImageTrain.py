@@ -89,7 +89,7 @@ def train():
         config=tf.ConfigProto(
             log_device_placement=FLAGS.log_device_placement),
         save_checkpoint_steps=500)) as mon_sess:
-      mon_sess.add_tensor_filter("has_inf_or_nan", tf_debug.has_nan_or_inf)
+      mon_sess.add_tensor_filter("has_inf_or_nan", tf_debug.has_inf_or_nan)
       while not mon_sess.should_stop():
         mon_sess.run(train_op)
         #print(mon_sess.run(images))
