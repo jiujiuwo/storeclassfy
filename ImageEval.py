@@ -101,6 +101,7 @@ def eval_once(saver, summary_writer, top_k_op, summary_op,logits,labels):
         true_count += np.sum(predictions)
         step += 1
         print(step)
+        print(predictions)
 
       # Compute precision @ 1.
       #print(true_count)
