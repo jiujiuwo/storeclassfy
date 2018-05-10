@@ -101,7 +101,7 @@ def eval_once(saver, summary_writer, summary_op,logits,labels):
         print(predictions)
         result = predictions - tags
         print(result)
-        for i in len(result):
+        for i in range(len(result)):
           if result[i] ==0:
             true_count = true_count + 1
       precision = true_count / total_sample_count
