@@ -100,7 +100,7 @@ def readImage(inputQueue,length,height):
 		#plt.show(inputQueue[0])
 		images = tf.image.convert_image_dtype(tf.image.decode_png(images, channels=3), tf.float32)
 		resized = tf.image.resize_images(images,[size,size],method=0)
-		#resized = resized / 255
+		resized = resized / 255
 		resized.set_shape([size,size,3])
 		return resized
 	else:
