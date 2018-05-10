@@ -102,7 +102,7 @@ def eval_once(saver, summary_writer, summary_op,logits,labels):
         result = predictions - tags
         for i in len(result):
           if result[i] ==0:
-            true_count++
+            true_count = true_count + 1
       precision = true_count / total_sample_count
       print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
 
