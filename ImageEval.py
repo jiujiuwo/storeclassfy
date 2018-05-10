@@ -94,6 +94,7 @@ def eval_once(saver, summary_writer, summary_op,logits,labels):
       total_sample_count = num_iter * FLAGS.batch_size
       step = 0
       while step < num_iter and not coord.should_stop():
+        print(step)
         tags = sess.run(labels)
         print(tags)
         preLabels = sess.run(logits)
@@ -104,6 +105,8 @@ def eval_once(saver, summary_writer, summary_op,logits,labels):
         for i in range(len(result)):
           if result[i] ==0:
             true_count = true_count + 1
+        step = step + 1
+
       precision = true_count / total_sample_count
       print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
 
