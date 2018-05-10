@@ -94,7 +94,7 @@ def eval_once(saver, summary_writer, top_k_op, summary_op,logits,labels):
       total_sample_count = num_iter * FLAGS.batch_size
       step = 0
       while step < num_iter and not coord.should_stop():
-        predictions = sess.run([top_k_op])
+        predictions = sess.run(top_k_op)
         print(predictions)
         print('labels:')
         tags = sess.run(labels)
