@@ -146,7 +146,7 @@ def evaluate():
 
     summary_writer = tf.summary.FileWriter(FLAGS.checkpoint_dir, g)
 
-    eval_once(saver, summary_writer, top_k_op,summary_op,logits=logits,labels=labels)
+    eval_once(saver, summary_writer, top_k_op,summary_op,logits,labels)
 
 
 def main(argv=None):  # pylint: disable=unused-argument
