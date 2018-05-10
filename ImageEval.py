@@ -96,11 +96,13 @@ def eval_once(saver, summary_writer, top_k_op, summary_op,logits,labels):
       while step < num_iter and not coord.should_stop():
         predictions = sess.run([top_k_op])
         print('labels:')
-        print(sess.run(labels))
+        tags = sess.run(labels)
+        print(tags)
+        np.savetxt("./tags/step%d.txt"%step,tags)
         preLabels = sess.run(logits)
         print('logits')
-        #print(preLabels)
-        np.savetxt("step%d.txt"%step,preLabels)
+        print(preLabels)
+        np.savetxt("./prediction/step%d.txt"%step,preLabels)
         print(np.argmax(preLabels,axis=1))
         true_count += np.sum(predictions)
         step += 1
