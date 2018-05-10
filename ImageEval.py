@@ -53,7 +53,7 @@ FLAGS = tf.app.flags.FLAGS
 
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 2724
 
-np.set_printoptions(threshold=100)
+#np.set_printoptions(threshold=100)
 
 def eval_once(saver, summary_writer, top_k_op, summary_op,logits,labels):
   """Run Eval once.
@@ -99,7 +99,8 @@ def eval_once(saver, summary_writer, top_k_op, summary_op,logits,labels):
         print(sess.run(labels))
         preLabels = sess.run(logits)
         print('logits')
-        print(preLabels)
+        #print(preLabels)
+        np.savetxt("step%d.txt"%step,preLabels)
         print(np.argmax(preLabels,axis=1))
         true_count += np.sum(predictions)
         step += 1
