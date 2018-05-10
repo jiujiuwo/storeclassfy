@@ -95,9 +95,9 @@ def eval_once(saver, summary_writer, top_k_op, summary_op,logits,labels):
         predictions = sess.run([top_k_op])
         print('labels:')
         print(sess.run(labels))
-        #logits = sess.run(logits)
+        preLabels = sess.run(logits)
         print('logits')
-        print(logits)
+        print(np.argmax(preLabels,axis=1))
         true_count += np.sum(predictions)
         step += 1
         print(step)
