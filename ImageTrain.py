@@ -42,7 +42,7 @@ def train():
     # logits: 未归一化的概率， 一般也就是 softmax的输入
     logits = ImageModel.inference(images)
 
-    print(logits)
+    #print(logits)
 
     # Calculate loss.
     loss = ImageModel.loss(logits, labels)
@@ -81,14 +81,15 @@ def train():
                                examples_per_sec, sec_per_batch))
 
 
-    with  tf.train.MonitoredTrainingSession(
+    with  tf_debug.LocalCLIDebugWrapperSession(tf.train.MonitoredTrainingSession(
         checkpoint_dir=FLAGS.checkpointDir,
         hooks=[tf.train.StopAtStepHook(last_step=FLAGS.max_steps),
                tf.train.NanTensorHook(loss),
                _LoggerHook()],
         config=tf.ConfigProto(
             log_device_placement=FLAGS.log_device_placement),
-        save_checkpoint_steps=500) as mon_sess:
+        save_checkpoint_steps=500)) as mon_sess:
+      mon_sess.add_tensor_filter("has_inf_or_nan", tf_debug.has_nan_or_inf)
       while not mon_sess.should_stop():
         mon_sess.run(train_op)
         #print(mon_sess.run(images))
